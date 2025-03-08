@@ -2,69 +2,83 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model User {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    imageUrl String?
-    firstName String?
-    lastName String?
-    emailAddress String @unique
-    credit Int @default(1000000)
-    userToProjects UserToProject[]
+  imageUrl       String?
+  firstName      String?
+  lastName       String?
+  emailAddress   String          @unique
+  credit         Int             @default(1000000)
+  userToProjects UserToProject[]
 }
 
 model Project {
-    id        String    @id @default(cuid())
-    createdAt  DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    name      String 
-    githubUrl String
+  name      String
+  githubUrl String
 
-    deletedAt DateTime?
-    userToProjects UserToProject[]
-    commits Commit[]
+  deletedAt            DateTime?
+  userToProjects       UserToProject[]
+  commits              Commit[]
+  sourceCodeEmbeddings SourceCodeEmbedding[]
 }
 
 model UserToProject {
-       id        String    @id @default(cuid())
-    createdAt  DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-   userId String
-   projectId String
+  userId    String
+  projectId String
 
-    user User @relation (fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
-    project Project @relation (fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
 
-    @@unique([userId, projectId])
+  @@unique([userId, projectId])
+}
+
+model SourceCodeEmbedding {
+  id String @id @default(cuid())
+
+  summaryEmbedding Unsupported("vector(768)")?
+  sourceCode       String?
+  fileName         String?
+  summary          String?
+  projectId        String
+  project          Project                     @relation(fields: [projectId], references: [id])
 }
 
 model Commit {
-    id        String    @id @default(cuid())
-    createdAt  DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-     
-    projectId String
-    project Project @relation(fields: [projectId], references: [id])
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
 
-    commitMessage String
-    commitHash String
-    commitAuthorName String
-    commitAuthorAvatar String
-    commitDate DateTime
+  commitMessage      String
+  commitHash         String
+  commitAuthorName   String
+  commitAuthorAvatar String
+  commitDate         DateTime
 
-    summary String
+  summary String
 }

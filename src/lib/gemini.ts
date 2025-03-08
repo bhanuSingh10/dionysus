@@ -1,14 +1,15 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Document } from "@langchain/core/documents";
 
 const gemini_api_key = process.env.GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(gemini_api_key);
 const modal = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash"
+  model: "gemini-1.5-flash",
 });
 
 export const aiSummariseCommit = async (diff: string) => {
-    const response = await modal.generateContent([ 
-       `You are an expert programmer, and you are trying to summarize a git diff.  
+  const response = await modal.generateContent([
+    `You are an expert programmer, and you are trying to summarize a git diff.  
         
 Reminders about the diff format:  
 - Every file has a few metadata lines, like (for example):  
@@ -47,39 +48,55 @@ It is given **only** as an example of appropriate comments.
 
 Please summarize the following diff file:  
 
-\`\`\`\n\n${diff}\n\`\`\``
-    ]);
+\`\`\`\n\n${diff}\n\`\`\``,
+  ]);
 
-    // ✅ Correct way to extract the response text
-    const text = response.response.text(); 
+  // ✅ Correct way to extract the response text
+  const text = response.response.text();
 
-    return text;
+  return text;
 };
 
-// ✅ Testing the function
-// console.log(await summariseCommits(`
-// diff --git a/src/components/Navbar.tsx b/src/components/Navbar.tsx
-// index 123abc4..456def7 100644
-// --- a/src/components/Navbar.tsx
-// +++ b/src/components/Navbar.tsx
-// @@ -5,6 +5,7 @@ import React from 'react';
-//  import Link from 'next/link';
+export const summariseCode = async (doc: Document) => {
+  // const summaries = await Promise.all(
+  try {
+    const code = doc.pageContent.slice(0, 10000);
 
-//  const Navbar = () => {
-// +  const isLoggedIn = false;
-//    return (
-//      <nav>
-//        <ul>
-// @@ -12,6 +13,10 @@ const Navbar = () => {
-//            <Link href="/">Home</Link>
-//          </li>
-//          <li>
-// +          {isLoggedIn ? (
-// +            <Link href="/dashboard">Dashboard</Link>
-// +          ) : (
-// +            <Link href="/login">Login</Link>
-// +          )}
-//          </li>
-//        </ul>
-//      </nav>
-// `));
+    const response = await modal.generateContent([
+      "You are an intelligent senior software engineer specializing in onboarding junior software engineers onto projects.",
+      `You are onboarding a junior software engineer and explaining to them the purpose of the ${doc?.metadata?.source} file.`,
+      `Here is the code:\n---\n${code}\n---\nProvide a summary of no more than 100 words for the code above.`,
+    ]);
+
+    return response.response.text(); 
+  } catch (error) {
+    return "";
+  }
+};
+
+export const generateEmbedding = async (summary: string) => {
+  const model = genAI.getGenerativeModel({
+    model: "text-embedding-004",
+  });
+
+  const result = await model.embedContent(summary);
+
+  const embedding = result.embedding;
+  return embedding.values;
+};
+
+// console.log("embedding code is-", await generateEmbeddings("hello world"));
+
+// async function summariseCode(doc: Document[]) {
+//     console.log("Getting summary for", doc?.metadata?.source);
+
+//     const code = doc.pageContent.slice(0, 10000);
+
+//     const response = await module.generateContent([
+//         "You are an intelligent senior software engineer specializing in onboarding junior software engineers onto projects.",
+//         `You are onboarding a junior software engineer and explaining to them the purpose of the ${doc?.metadata?.source} file.`,
+//         `Here is the code:\n---\n${code}\n---\nProvide a summary of no more than 100 words for the code above.`
+//     ]);
+
+//     return response.response.text();
+// }

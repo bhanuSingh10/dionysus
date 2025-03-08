@@ -4,14 +4,17 @@ import { useUser } from "@clerk/nextjs";
 import { ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import CommitLog from "./commit-log";
+import AskQuestionCard from "./ask-question-card";
 // 1.24
 const DashboardPage = () => {
   const { user } = useUser();
-  const { project } = useProject();
+  const { project, projects } = useProject();
 
   return (
     <div className="">
       {project?.id}
+      {project?.githubUrl}
       <div className="flex flex-wrap items-center justify-between gap-y-4 ">
         {/* github link */}
         <div className="rounded-2xl w-fit text-black bg-primary px-4 py-3">
@@ -40,11 +43,13 @@ const DashboardPage = () => {
       </div>
      <div className="mt-4">
         <div className="grid grid-cols-4 sm:grid-cols-5">
-          ask questioncard 
+          <AskQuestionCard />
           meeting card
         </div>
       </div>
-      <div className="mt-8">commit logs</div>
+      <div className="mt-8">
+        <CommitLog/>
+      </div>
     </div>
   );
 };
