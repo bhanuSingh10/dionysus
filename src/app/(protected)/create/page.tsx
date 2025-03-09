@@ -47,7 +47,7 @@ const CreatePage = () => {
           </p>
         </div>
         <div className="h-4"></div>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="gap-4">
           <Input
             {...register("projectName", { required: true })}
             placeholder="Project Name"

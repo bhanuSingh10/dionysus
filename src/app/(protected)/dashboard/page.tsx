@@ -13,8 +13,7 @@ const DashboardPage = () => {
 
   return (
     <div className="">
-      {project?.id}
-      {project?.githubUrl}
+     
       <div className="flex flex-wrap items-center justify-between gap-y-4 ">
         {/* github link */}
         <div className="rounded-2xl w-fit text-black bg-primary px-4 py-3">

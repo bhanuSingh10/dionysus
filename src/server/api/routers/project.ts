@@ -1,10 +1,5 @@
 
 
-
-
-
-
-
 import { pollCommits } from "@/lib/github";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
@@ -36,10 +31,10 @@ export const projectRouter = createTRPCRouter({
         });
 
         // Index GitHub repository
-        await indexGithubRepo(project.id, input.githubUrl, input.githubToken).catch(console.error);
+        await indexGithubRepo(project.id, input.githubUrl, input.githubToken).then().catch(console.error);
 
         // Poll commits in background
-        await pollCommits(project.id).catch(console.error);
+        await pollCommits(project.id).then().catch(console.error);
 
         return project;
       } catch (error) {
@@ -85,7 +80,7 @@ export const projectRouter = createTRPCRouter({
         }
 
         // Poll commits asynchronously
-        pollCommits(input.projectId).catch(console.error);
+        pollCommits(input.projectId).then().catch(console.error);
 
         return await ctx.db.commit.findMany({
           where: {

@@ -8,7 +8,7 @@ export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
-const githubUrl = "https://github.com/vercel/next.js";
+// const githubUrl = "https://github.com/vercel/next.js";
 
 type Response = {
   commitHash: string;
@@ -17,11 +17,7 @@ type Response = {
   commitAuthorAvatar: string;
   commitDate: string;
 };
-const getRepoDetails = (githubUrl: string) => {
-  const urlParts = githubUrl.replace(/https?:\/\/github\.com\//, "").split("/");
-  if (urlParts.length < 2) throw new Error("Invalid GitHub URL");
-  return { owner: urlParts[0], repo: urlParts[1] };
-};
+ 
 
 export const getCommitHashes = async (
   githubUrl: string,
@@ -60,17 +56,24 @@ export const pollCommits = async (projectId: string) => {
     projectId,
     commitHashes,
   ) ;
-  
-  
-  const summaryResponses = await Promise.allSettled(unproccessedCommits.map((commit) =>
-    summariseCommit(githubUrl, commit.commitHash) 
-  ));
-  const summaries = summaryResponses.map((response, index) =>{
-    if (response.status === "fulfilled") {
+  const summariesResponses = await Promise.allSettled(unproccessedCommits.map((commit) =>
+    summariseCommit(githubUrl, commit.commitHash)));
+  const summaries = summariesResponses.map((response) => {
+    if(response.status === "fulfilled") {
       return response.value;
     }
-    return `Failed to summarise commit`;
+    return "Failed to summarise commit";
   });
+  
+  // const summaryResponses = await Promise.allSettled(unproccessedCommits.map((commit) =>
+  //   summariseCommit(githubUrl, commit.commitHash) 
+  // ));
+  // const summaries = summaryResponses.map((response, index) =>{
+  //   if (response.status === "fulfilled") {
+  //     return response.value;
+  //   }
+  //   return `Failed to summarise commit`;
+  // });
 
   const commit = await db.commit.createMany({
     data: summaries.map((summary, index) => {
@@ -99,7 +102,7 @@ async function summariseCommit(githubUrl: string, commitHash: string) {
     },
   });
 
-  return (await aiSummariseCommit(response.data)) || "No summary available";
+  return await aiSummariseCommit(response.data) || "No summary available";
 }
 
 async function fetchProjectGithubUrl(projectId: string) {

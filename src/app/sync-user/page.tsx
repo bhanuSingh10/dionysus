@@ -2,19 +2,27 @@
 import { db } from '@/server/db';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { notFound, redirect } from 'next/navigation';
-import React from 'react'
+
 
 const SyncUser = async () => {
     const {userId} = await auth();
     if (!userId) {
         throw new Error("user not found");
     }
-    const clent = await clerkClient();
-    const user = await clent.users.getUser(userId);
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
 
     if(!user.emailAddresses[0]?.emailAddress) {
         return notFound();
     }
+    const existingUser = await db.user.findUnique({
+        where: { emailAddress: user.emailAddresses[0]?.emailAddress },
+      });
+    
+      // If user already exists, redirect directly to dashboard
+      if (existingUser) {
+        return redirect("/dashboard");
+      }
 
     await db.user.upsert({
         where: {
