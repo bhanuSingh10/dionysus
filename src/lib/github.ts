@@ -56,14 +56,20 @@ export const pollCommits = async (projectId: string) => {
     projectId,
     commitHashes,
   ) ;
+  console.log("commitHashes-----", commitHashes);
+  console.log("unproccessedCommits-----", unproccessedCommits);
+ 
   const summariesResponses = await Promise.allSettled(unproccessedCommits.map((commit) =>
     summariseCommit(githubUrl, commit.commitHash)));
+  console.log("summaresResponse------",summariesResponses);
   const summaries = summariesResponses.map((response) => {
     if(response.status === "fulfilled") {
       return response.value;
     }
     return "Failed to summarise commit";
   });
+  console.log("summaries----",summaries)
+
   
   // const summaryResponses = await Promise.allSettled(unproccessedCommits.map((commit) =>
   //   summariseCommit(githubUrl, commit.commitHash) 
@@ -101,6 +107,7 @@ async function summariseCommit(githubUrl: string, commitHash: string) {
       Accept: "application/vnd.github.v3.diff",
     },
   });
+ 
 
   return await aiSummariseCommit(response.data) || "No summary available";
 }
@@ -138,4 +145,4 @@ async function filterUnprocessedCommits(
   return unproccessedCommits;
 }
 
-await pollCommits("cm7ubxskc0000119ns2rlq2za").then(console.log);
+// await pollCommits("cm7ubxskc0000119ns2rlq2za").then(console.log);

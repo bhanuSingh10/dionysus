@@ -16,6 +16,10 @@ import Image from "next/image";
 import { set } from "zod";
 import { askQuestion } from "./action";
 import { readStreamableValue } from "ai/rsc";
+import MDEditor from "@uiw/react-md-editor"
+import CodeRefereces from "./code-references";
+import { api } from "@/trpc/react";
+
 
 const AskQuestionCard = () => {
   const { project } = useProject();
@@ -26,8 +30,11 @@ const AskQuestionCard = () => {
     { fileName: string; sourceCode: string; summary: string }[] | null
   >(null);
   const [answer, setAnswer] = useState("");
+  const saveAnswer = api.project.saveAnswer.useMutation();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setAnswer("");
+    setFileReference([]);
     if (!project?.id) {
       return;
     }
@@ -55,21 +62,31 @@ const AskQuestionCard = () => {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[80vw]">
           <DialogHeader>
+            <div className="flex items-center gap-2">
+          
             <DialogTitle>
               <Image src="/logo.png" alt="logo" width={40} height={40} />
             </DialogTitle>
+            <Button variant={'outline'}>Save Answer</Button>
+            </div>
             <DialogDescription>
               Your question has been submitted!
             </DialogDescription>
           </DialogHeader>
           
-          {answer}
-          <h1>file reference</h1>
+          {/* <div className="= max-w-[70vw] h-full max-h-[40vh] overflow-auto border"> */}
+            <MDEditor.Markdown source={answer}  className=" max-w-[70vw] h-full max-h-[40vh] overflow-scroll
+           "/>
+           <div className="h-4"></div>
+           <CodeRefereces fileReferences={fileReference}/>
+          {/* </div> */}
+          <Button type="button" onClick={()=>{setOpen(false)}}>Close</Button>
+          {/* <h1>file reference</h1>
           {fileReference?.map((file) => {
             return <span>{file.fileName}</span>;
-          })}
+          })} */}
         </DialogContent>
       </Dialog>
 
@@ -85,7 +102,7 @@ const AskQuestionCard = () => {
               onChange={(e) => setQuestion(e.target.value)}
             />
             <div className="h-4"></div>
-            <Button type="submit">Ask Dionysus!</Button>
+            <Button type="submit" disabled = {loading}>Ask Dionysus!</Button>
           </form>
         </CardContent>
       </Card>
