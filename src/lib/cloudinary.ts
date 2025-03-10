@@ -18,7 +18,7 @@ export async function uploadFile(file: File, setProgress?: (progress: number) =>
       xhr.onload = () => {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
-          resolve(response.secure_url);
+          resolve(response.secure_url );
         } else {
           reject(new Error("Upload failed"));
         }

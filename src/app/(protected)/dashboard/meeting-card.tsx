@@ -4,32 +4,61 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button'; 
 import { uploadFile } from '@/lib/cloudinary';  // ✅ No more 'fs' issues
 import { Presentation, Upload } from 'lucide-react';
-import React from 'react';
+import React  from 'react';
 import { useDropzone } from 'react-dropzone';
 import { CircularProgressbar } from "react-circular-progressbar";
+import { api } from '@/trpc/react';
+import useProject from '@/hooks/use-project';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+
 
 const MeetingCard = () => {
+    const router = useRouter()
+    const {project} = useProject();
     const [progress, setProgress] = React.useState(0);  
     const [isUploading, setIsUploading] = React.useState(false);
-    
+    const uploadMeeting = api.project.uploadMeeting.useMutation();
     const { getRootProps, getInputProps } = useDropzone({
         accept: { 'audio/*': ['.mp3', '.wav', '.m4a'] }, 
         multiple: false,
         maxSize: 5000000,
         onDrop: async (acceptedFiles) => {
+            if(!project) {
+                return;
+            }
             setIsUploading(true);
             const file = acceptedFiles[0];
+            if(!file) {
+                return;
+            }
+            const downloadURL = await uploadFile(file as File, setProgress) as string;
 
             if (file) {
                 try {
                     const downloadURL = await uploadFile(file, setProgress);
-                    window.alert(`File uploaded: ${downloadURL}`);
+
+                    await uploadMeeting.mutateAsync({
+                        projectId: project.id,
+                        meetingUrl: downloadURL,
+                        name: file.name
+                    }, {
+                        onSuccess: () => {
+                            toast.success("Meeting uploaded successfully");
+                            router.push('/meetings')
+                        },
+                        onError: (error) => {
+                            toast.error("Failed to upload meeting. Try again.");
+                        }
+                    });
+
+                  
                 } catch (error) {
                     console.error("Upload failed", error);
                     window.alert("Upload failed. Try again.");
                 }
             }
-            
+
             setIsUploading(false);
         }
     });
