@@ -1,4 +1,4 @@
-
+"use client"
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/dialog";
 import React, { useState } from "react";
 import Image from "next/image";
-import { set } from "zod";
 import { askQuestion } from "./action";
 import { readStreamableValue } from "ai/rsc";
 import MDEditor from "@uiw/react-md-editor"
 import CodeRefereces from "./code-references";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import useRefetch from "@/hooks/use-refetch";
 
 
 const AskQuestionCard = () => {
@@ -59,6 +59,7 @@ const AskQuestionCard = () => {
     }
     setLoading(false);
   };
+  const refetch = useRefetch();
 
   return (
     <>
@@ -79,6 +80,7 @@ const AskQuestionCard = () => {
               }, {
                 onSuccess: () => {
                   toast.success("Answer saved successfully")
+                  refetch();
                 },
                 onError: () => {
                   toast.error("Failed to save answer")
