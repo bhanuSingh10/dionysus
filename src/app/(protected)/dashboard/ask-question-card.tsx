@@ -19,6 +19,7 @@ import { readStreamableValue } from "ai/rsc";
 import MDEditor from "@uiw/react-md-editor"
 import CodeRefereces from "./code-references";
 import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 
 const AskQuestionCard = () => {
@@ -69,7 +70,21 @@ const AskQuestionCard = () => {
             <DialogTitle>
               <Image src="/logo.png" alt="logo" width={40} height={40} />
             </DialogTitle>
-            <Button variant={'outline'}>Save Answer</Button>
+            <Button disabled = {saveAnswer.isPending} onClick={() =>{
+              saveAnswer.mutate({
+                projectId: project?.id || "",
+                question: question,
+                answer,
+                filesReferences: fileReference
+              }, {
+                onSuccess: () => {
+                  toast.success("Answer saved successfully")
+                },
+                onError: () => {
+                  toast.error("Failed to save answer")
+                }
+              })
+            }} variant={'outline'}>Save Answer</Button>
             </div>
             <DialogDescription>
               Your question has been submitted!
