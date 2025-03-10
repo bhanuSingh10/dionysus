@@ -6,6 +6,7 @@ import Link from "next/link";
 import React from "react";
 import CommitLog from "./commit-log";
 import AskQuestionCard from "./ask-question-card";
+import MeetingCard from "./meeting-card";
 // 1.24
 const DashboardPage = () => {
   const { user } = useUser();
@@ -43,7 +44,7 @@ const DashboardPage = () => {
      <div className="mt-4">
         <div className="grid grid-cols-4 sm:grid-cols-5">
           <AskQuestionCard />
-          meeting card
+          <MeetingCard/>
         </div>
       </div>
       <div className="mt-8">
