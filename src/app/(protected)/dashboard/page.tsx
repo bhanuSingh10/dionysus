@@ -1,12 +1,14 @@
 "use client";
 import useProject from "@/hooks/use-project";
 import { useUser } from "@clerk/nextjs";
-import { ExternalLink, Github } from "lucide-react";
+import { Archive, ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import CommitLog from "./commit-log";
 import AskQuestionCard from "./ask-question-card";
 import MeetingCard from "./meeting-card";
+import ArchiveButton from "./archive-button";
+import InviteButton from "./invite-button";
 // 1.24
 const DashboardPage = () => {
   const { user } = useUser();
@@ -37,12 +39,12 @@ const DashboardPage = () => {
         <div className="h-4"></div>
         <div className="flex items-center gap-4">
           team Member
-          invite button
-          archive button
+          <InviteButton/>
+          <ArchiveButton/>
         </div>
       </div>
      <div className="mt-4">
-        <div className="grid grid-cols-4 sm:grid-cols-5">
+        <div className="gap-3 grid grid-cols-4 sm:grid-cols-5">
           <AskQuestionCard />
           <MeetingCard/>
         </div>
