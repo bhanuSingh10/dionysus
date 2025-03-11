@@ -5,6 +5,9 @@ import MeetingCard from "../dashboard/meeting-card";
 import Link from "next/link";
 import {Badge} from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
+import { toast } from "sonner";
+import useRefetch from "@/hooks/use-refetch";
 
 const page = () => {
   const { projectId, project } = useProject();
@@ -12,6 +15,9 @@ const page = () => {
     { projectId },
     { refetchInterval: 4000 },
   );
+  const refetch = useRefetch();
+
+  const deleteMeeting = api.project.deleteMeeting.useMutation();
   return (
     <>
       <MeetingCard />
@@ -44,8 +50,18 @@ const page = () => {
               </div>
               <div className="flex items-center flex-none gap-x-4">
                 <Link href={`/meetings/${meeting.id}`}>
-                  <Button variant={'outline'}>View</Button>
+                  <Button size="sm" variant={'outline'}>View</Button>
                 </Link>
+                <Button disabled = {deleteMeeting.isPending} size="sm" variant='destructive' onClick={() => {
+                  deleteMeeting.mutate({meetingId: meeting.id}, {
+                    onSuccess: () => {
+                      toast.success("Meeting deleted successfully");
+                      refetch();
+                    }
+                  })
+                }}>
+                      Delete Meeting
+                </Button>
               </div>
             </li>
           ))}

@@ -3,7 +3,7 @@
 // npm install assemblyai
 
 import { AssemblyAI } from 'assemblyai';
-import { start } from 'repl';
+
 
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY || "",
@@ -21,24 +21,25 @@ export const processMeeting = async (meetingsUrl: string) => {
         audio: meetingsUrl,
         auto_chapters: true,
 
-    
+     
     })
-    const summaries = transcript.chapters?.map((chapter)=>{
-        start: meToTime(chapter.start)
-        end: meToTime(chapter.end)
-        gist: chapter.gist
-        headline: chapter.headline
+    const summaries = transcript.chapters?.map((chapter) => ({
+        start: meToTime(chapter.start),
+        end: meToTime(chapter.end),
+        gist: chapter.gist,
+        headline: chapter.headline,
         summary: chapter.summary
-    }) || [];
+    })) || [];
+    
     if(!transcript.text) throw new Error("No transcript found");
     return {
         summaries
     }
 }
 
-const FILE_URL =
-  'https://assembly.ai/sports_injuries.mp3';
+// const FILE_URL =
+//   'https://assembly.ai/sports_injuries.mp3';
 
-  const response = await processMeeting(FILE_URL);
+//   const response = await processMeeting(FILE_URL);
 
-  console.log(response)
+//   console.log(response)
