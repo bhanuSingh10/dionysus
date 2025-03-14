@@ -23,12 +23,12 @@ Dionysus is a powerful project management and collaboration platform that integr
 ![Dashboard](screenshots/dashboard.png)
 
 
-### Project summary
+### Project commits summary
 ![Commit summary](screenshots/commit-summary.png)
 
 
-### add new project
-=![Create Project](screenshots/create-project.png)
+### Add new project
+![Create Project](screenshots/create-project.png)
 
 
 ### Q&A Page
