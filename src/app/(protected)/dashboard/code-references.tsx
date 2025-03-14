@@ -7,7 +7,9 @@ import { lucario } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  fileReferences: { fileName: string; sourceCode: string; summary: string }[] | null;
+  fileReferences:
+    | { fileName: string; sourceCode: string; summary: string }[]
+    | null;
 };
 
 const CodeReferences = ({ fileReferences }: Props) => {
@@ -17,15 +19,19 @@ const CodeReferences = ({ fileReferences }: Props) => {
     <div className="max-w-[70vw]">
       <Tabs value={tab} onValueChange={setTab}>
         {/* Tab Buttons */}
-        <div className="overflow-auto flex gap-2 bg-gray-200 p-1 rounded-md">
+        <div className="flex gap-2 overflow-auto rounded-md bg-gray-200 p-1">
           {fileReferences?.map((file) => (
-            <button onClick={()=>setTab(file.fileName)} key={file.fileName} value={file.fileName} >
+            <button
+              onClick={() => setTab(file.fileName)}
+              key={file.fileName}
+              value={file.fileName}
+            >
               <button
                 className={cn(
-                  " rounded-md px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap text-muted-foreground hover:bg-muted",
+                  "whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted",
                   {
                     "bg-primary text-primary-foreground": tab === file.fileName,
-                  }
+                  },
                 )}
               >
                 {file.fileName}
@@ -39,7 +45,7 @@ const CodeReferences = ({ fileReferences }: Props) => {
           <TabsContent
             key={file.fileName}
             value={file.fileName}
-            className="max-h-[40vh] overflow-auto max-w-7xl rounded-md"
+            className="max-h-[40vh] max-w-7xl overflow-auto rounded-md"
           >
             <SyntaxHighlighter language="typescript" style={lucario}>
               {file.sourceCode}

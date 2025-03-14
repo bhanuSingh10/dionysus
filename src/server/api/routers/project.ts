@@ -1,5 +1,3 @@
-
-
 import { pollCommits } from "@/lib/github";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
@@ -14,7 +12,7 @@ export const projectRouter = createTRPCRouter({
         name: z.string().min(1, "Project name is required"),
         githubUrl: z.string().url("Invalid GitHub URL"),
         githubToken: z.string().optional(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       try {
@@ -32,7 +30,9 @@ export const projectRouter = createTRPCRouter({
         });
 
         // Index GitHub repository
-        await indexGithubRepo(project.id, input.githubUrl, input.githubToken).then().catch(console.error);
+        await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
+          .then()
+          .catch(console.error);
 
         // Poll commits in background
         await pollCommits(project.id).catch(console.error);
@@ -72,7 +72,7 @@ export const projectRouter = createTRPCRouter({
     .input(
       z.object({
         projectId: z.string().min(1, "Project ID is required"),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       try {
@@ -93,14 +93,14 @@ export const projectRouter = createTRPCRouter({
         throw new Error("Failed to fetch commits.");
       }
     }),
-    saveAnswer: protectedProcedure
+  saveAnswer: protectedProcedure
     .input(
       z.object({
         projectId: z.string(),
         question: z.string(),
         answer: z.string(),
         filesReferences: z.any(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       // Your mutation logic here
@@ -111,16 +111,14 @@ export const projectRouter = createTRPCRouter({
           projectId: input.projectId,
           question: input.question,
           userId: ctx.user.userId!,
-
-
-        }
-      })
+        },
+      });
     }),
-    getQuestions: protectedProcedure
+  getQuestions: protectedProcedure
     .input(
       z.object({
         projectId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       return await ctx.db.question.findMany({
@@ -135,38 +133,64 @@ export const projectRouter = createTRPCRouter({
         },
       });
     }),
-    uploadMeeting: protectedProcedure.input(z.object({projectId: z.string(), meetingUrl: z.string(), name: z.string() })).mutation(async ({ctx, input})=>{
+  uploadMeeting: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+        meetingUrl: z.string(),
+        name: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
       const meeting = await ctx.db.meeting.create({
         data: {
           projectId: input.projectId,
           meetingUrl: input.meetingUrl,
           name: input.name,
-          status: "PROCESSING"
-        }
-      })
+          status: "PROCESSING",
+        },
+      });
       return meeting;
     }),
-    getMeetings: protectedProcedure.input(z.object({projectId: z.string()})).query(async ({ctx, input})=>{
+  getMeetings: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
       return await ctx.db.meeting.findMany({
         where: {
-          projectId: input.projectId
+          projectId: input.projectId,
         },
         include: {
-          issues: true
-        }
-      })
+          issues: true,
+        },
+      });
     }),
-    deleteMeeting: protectedProcedure.input(z.object({meetingId: z.string()})).mutation(async ({ctx, input}) => {
-      return await ctx.db.meeting.delete({where: {id: input.meetingId}})
+  deleteMeeting: protectedProcedure
+    .input(z.object({ meetingId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.meeting.delete({ where: { id: input.meetingId } });
     }),
-    getMeetingById: protectedProcedure.input(z.object({meetingId:z.string()})).query(async ({ctx, input}) => {
-      return await ctx.db.meeting.findUnique({where: {id: input.meetingId}, include: {issues: true}})
-    }), archivedProject: protectedProcedure.input(z.object({projectId:z.string()})).mutation(async ({ctx, input}) => {
-      return await ctx.db.project.update({where: {id: input.projectId}, data: {deletedAt: new Date()}})
-    }), getTeamMembers: protectedProcedure.input(z.object({projectId: z.string()})).query(async ({ctx, input}) => {
-      return await ctx.db.userToProject.findMany({where: {projectId: input.projectId}, include: {user: true}});
+  getMeetingById: protectedProcedure
+    .input(z.object({ meetingId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.meeting.findUnique({
+        where: { id: input.meetingId },
+        include: { issues: true },
+      });
+    }),
+  archivedProject: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.project.update({
+        where: { id: input.projectId },
+        data: { deletedAt: new Date() },
+      });
+    }),
+  getTeamMembers: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.userToProject.findMany({
+        where: { projectId: input.projectId },
+        include: { user: true },
+      });
     }),
 });
-
-
-

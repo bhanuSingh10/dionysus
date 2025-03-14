@@ -68,7 +68,7 @@ export const summariseCode = async (doc: Document) => {
       `Here is the code:\n---\n${code}\n---\nProvide a summary of no more than 100 words for the code above.`,
     ]);
 
-    return response.response.text(); 
+    return response.response.text();
   } catch (error) {
     return "Error in summarising code";
   }
@@ -78,11 +78,9 @@ export const generateEmbedding = async (summary: string) => {
   const model = genAI.getGenerativeModel({
     model: "text-embedding-004",
   });
-  
 
   const result = await model.embedContent(summary);
 
   const embedding = result.embedding;
   return embedding.values;
 };
- 

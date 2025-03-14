@@ -71,15 +71,6 @@ export const pollCommits = async (projectId: string) => {
   console.log("summaries----",summaries)
 
   
-  // const summaryResponses = await Promise.allSettled(unproccessedCommits.map((commit) =>
-  //   summariseCommit(githubUrl, commit.commitHash) 
-  // ));
-  // const summaries = summaryResponses.map((response, index) =>{
-  //   if (response.status === "fulfilled") {
-  //     return response.value;
-  //   }
-  //   return `Failed to summarise commit`;
-  // });
 
   const commit = await db.commit.createMany({
     data: summaries.map((summary, index) => {

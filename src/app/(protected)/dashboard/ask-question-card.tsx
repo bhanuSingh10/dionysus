@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,12 +15,11 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { askQuestion } from "./action";
 import { readStreamableValue } from "ai/rsc";
-import MDEditor from "@uiw/react-md-editor"
+import MDEditor from "@uiw/react-md-editor";
 import CodeRefereces from "./code-references";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import useRefetch from "@/hooks/use-refetch";
-
 
 const AskQuestionCard = () => {
   const { project } = useProject();
@@ -42,13 +41,15 @@ const AskQuestionCard = () => {
     e.preventDefault();
     setLoading(true);
     setOpen(true);
-    const { output, fileReference: fileReferenceData } = await askQuestion(question, project.id);
+    const { output, fileReference: fileReferenceData } = await askQuestion(
+      question,
+      project.id,
+    );
 
-    const fileReference = fileReferenceData.map(file => ({
+    const fileReference = fileReferenceData.map((file) => ({
       fileName: file.fileName,
       sourceCode: file.sourceCode,
       summary: file.summary,
-      
     }));
     setFileReference(fileReference);
 
@@ -67,39 +68,56 @@ const AskQuestionCard = () => {
         <DialogContent className="sm:max-w-[80vw]">
           <DialogHeader>
             <div className="flex items-center gap-2">
-          
-            <DialogTitle>
-              <Image src="/logo.png" alt="logo" width={40} height={40} />
-            </DialogTitle>
-            <Button disabled = {saveAnswer.isPending} onClick={() =>{
-              saveAnswer.mutate({
-                projectId: project?.id || "",
-                question: question,
-                answer,
-                filesReferences: fileReference
-              }, {
-                onSuccess: () => {
-                  toast.success("Answer saved successfully")
-                  refetch();
-                },
-                onError: () => {
-                  toast.error("Failed to save answer")
-                }
-              })
-            }} variant={'outline'}>Save Answer</Button>
+              <DialogTitle>
+                <Image src="/logo.png" alt="logo" width={40} height={40} />
+              </DialogTitle>
+              <Button
+                disabled={saveAnswer.isPending}
+                onClick={() => {
+                  saveAnswer.mutate(
+                    {
+                      projectId: project?.id || "",
+                      question: question,
+                      answer,
+                      filesReferences: fileReference,
+                    },
+                    {
+                      onSuccess: () => {
+                        toast.success("Answer saved successfully");
+                        refetch();
+                      },
+                      onError: () => {
+                        toast.error("Failed to save answer");
+                      },
+                    },
+                  );
+                }}
+                variant={"outline"}
+              >
+                Save Answer
+              </Button>
             </div>
             <DialogDescription>
               Your question has been submitted!
             </DialogDescription>
           </DialogHeader>
-          
+
           {/* <div className="= max-w-[70vw] h-full max-h-[40vh] overflow-auto border"> */}
-            <MDEditor.Markdown source={answer}  className=" max-w-[70vw] h-full max-h-[40vh] overflow-scroll
-           "/>
-           <div className="h-4"></div>
-           <CodeRefereces fileReferences={fileReference}/>
+          <MDEditor.Markdown
+            source={answer}
+            className="h-full max-h-[40vh] max-w-[70vw] overflow-scroll"
+          />
+          <div className="h-4"></div>
+          <CodeRefereces fileReferences={fileReference} />
           {/* </div> */}
-          <Button type="button" onClick={()=>{setOpen(false)}}>Close</Button>
+          <Button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+            }}
+          >
+            Close
+          </Button>
           {/* <h1>file reference</h1>
           {fileReference?.map((file) => {
             return <span>{file.fileName}</span>;
@@ -119,7 +137,9 @@ const AskQuestionCard = () => {
               onChange={(e) => setQuestion(e.target.value)}
             />
             <div className="h-4"></div>
-            <Button type="submit" disabled = {loading}>Ask Dionysus!</Button>
+            <Button type="submit" disabled={loading}>
+              Ask Dionysus!
+            </Button>
           </form>
         </CardContent>
       </Card>
